@@ -1,5 +1,6 @@
 import 'package:cryptotracker_app/providers/coin_provider.dart';
 import 'package:cryptotracker_app/providers/news_provider.dart';
+import 'package:cryptotracker_app/ui/pages/auth/register_page.dart';
 import 'package:cryptotracker_app/ui/pages/splash/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
       ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: SplashPage(),
+        home: RegisterPage(),
       ),
     );
   }

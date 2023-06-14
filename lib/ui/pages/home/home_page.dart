@@ -98,7 +98,7 @@ class _HomePageState extends State<HomePage> {
             ),
 
             Container(
-              height: 115,
+              height: 120,
               margin: const EdgeInsets.only(
                 top: 14,
               ),

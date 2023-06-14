@@ -19,9 +19,11 @@ class CoinCard extends StatelessWidget {
       onTap: () {},
       child: Container(
         width: 180,
-        height: 115,
+        height: 120,
         margin: const EdgeInsets.only(
           left: 16,
+          bottom: 4,
+          top: 4,
         ),
         decoration: BoxDecoration(
           color: whiteColor,
