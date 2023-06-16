@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cryptotracker_app/providers/coin_provider.dart';
+import 'package:cryptotracker_app/providers/auth_provider.dart';
 import 'package:cryptotracker_app/shared/theme.dart';
 import 'package:cryptotracker_app/ui/pages/home/widgets/coin_card.dart';
 import 'package:cryptotracker_app/ui/pages/home/widgets/shimmer/coin_card_shimmer.dart';
 import 'package:cryptotracker_app/ui/pages/home/widgets/coin_tile.dart';
 import 'package:cryptotracker_app/ui/pages/home/widgets/shimmer/coin_tile_shimmer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -46,24 +49,38 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hallo,',
-                          style: greyTextStyle.copyWith(
-                            fontSize: 16,
-                          ),
-                        ),
-                        Text(
-                          'Abghi Fareihan',
-                          style: blackTextStyle.copyWith(
-                            fontSize: 20,
-                            fontWeight: semiBold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                    child: Consumer<AuthProvider>(
+                      builder: (context, authProvider, child) {
+                        String? displayName = authProvider.loggedInUser?.name;
+                        String? displayEmail = authProvider.loggedInUser?.email;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Halo,",
+                              style: greyTextStyle.copyWith(
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              displayName ?? '',
+                              style: blackTextStyle.copyWith(
+                                fontSize: 20,
+                                fontWeight: semiBold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              displayEmail ?? '',
+                              style: blackTextStyle.copyWith(
+                                fontSize: 20,
+                                fontWeight: semiBold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                   Container(
@@ -151,7 +168,7 @@ class _HomePageState extends State<HomePage> {
             Consumer<CoinProvider>(
               builder: (context, provider, child) {
                 final data = provider.coins;
-                if (provider.state == ResultState.loading || data.isEmpty) {
+                if (provider.state == ResultState.loading) {
                   return Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,

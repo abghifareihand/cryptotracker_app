@@ -1,11 +1,14 @@
+import 'package:cryptotracker_app/providers/auth_provider.dart';
 import 'package:cryptotracker_app/providers/coin_provider.dart';
 import 'package:cryptotracker_app/providers/news_provider.dart';
-import 'package:cryptotracker_app/ui/pages/auth/register_page.dart';
 import 'package:cryptotracker_app/ui/pages/splash/splash_page.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -17,6 +20,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
+          create: (context) => AuthProvider(),
+        ),
+        ChangeNotifierProvider(
           create: (context) => CoinProvider(),
         ),
         ChangeNotifierProvider(
@@ -25,7 +31,7 @@ class MyApp extends StatelessWidget {
       ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: RegisterPage(),
+        home: SplashPage(),
       ),
     );
   }
