@@ -22,34 +22,41 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _loginUser() async {
-    _isLoading.value = true;
-    try {
-      await _auth.signInWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isLoggedIn', true);
+    if (_formKey.currentState!.validate()) {
+      _isLoading.value = true;
+      try {
+        await _auth.signInWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
 
-      await Future.delayed(const Duration(seconds: 2));
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const BottomNavbar(),
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        Fluttertoast.showToast(
+          msg: "Login Successful",
+          gravity: ToastGravity.TOP,
           backgroundColor: Colors.green,
-          content: Text('Berhasil Login'),
-        ),
-      );
-    } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(
-          msg: e.message.toString(), gravity: ToastGravity.TOP);
+        );
+
+        // Tambahkan penundaan selama 2 detik sebelum navigasi
+        await Future.delayed(Duration(seconds: 2));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const BottomNavbar(),
+          ),
+        );
+
+        // Set isLoggedIn to true
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+      } on FirebaseAuthException catch (e) {
+        Fluttertoast.showToast(
+          msg: e.message.toString(),
+          gravity: ToastGravity.TOP,
+        );
+      }
+
+      _isLoading.value = false;
     }
-    _isLoading.value = false;
   }
 
   @override
@@ -94,6 +101,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             child: Form(
               key: _formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -121,6 +129,17 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           contentPadding: const EdgeInsets.all(12),
                         ),
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Email tidak boleh kosong.';
+                          }
+                          if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
+                              .hasMatch(value)) {
+                            return ("Email tidak valid");
+                          }
+
+                          return null;
+                        },
                       ),
                     ],
                   ),
@@ -164,6 +183,16 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                             ),
+                            validator: (value) {
+                              RegExp regex = RegExp(r'^.{6,}$');
+                              if (value!.isEmpty) {
+                                return ("Password tidak boleh kosong.");
+                              }
+                              if (!regex.hasMatch(value)) {
+                                return ("Password (Min. 6 Karakter)");
+                              }
+                              return null;
+                            },
                           ),
                         ],
                       );

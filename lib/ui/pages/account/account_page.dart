@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cryptotracker_app/shared/theme.dart';
+import 'package:cryptotracker_app/ui/pages/account/widgets/account_shimmer.dart';
 import 'package:cryptotracker_app/ui/pages/auth/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({Key? key});
@@ -23,18 +26,18 @@ class _AccountPageState extends State<AccountPage> {
 
     await FirebaseAuth.instance.signOut();
 
-    await Future.delayed(const Duration(seconds: 2));
-    if (!mounted) return;
+    Fluttertoast.showToast(
+      msg: "Logout Successful",
+      gravity: ToastGravity.TOP,
+      backgroundColor: Colors.red,
+    );
+
+    // Tambahkan penundaan selama 2 detik sebelum navigasi
+    await Future.delayed(Duration(seconds: 2));
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => const LoginPage(),
-      ),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        backgroundColor: Colors.red,
-        content: Text('Berhasil Logout'),
       ),
     );
     _isLoading.value = false;
@@ -43,20 +46,6 @@ class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: primaryNavbarColor, // Atur latar belakang putih
-        elevation: 0, // Atur elevasi ke 0 untuk menghilangkan bayangan
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Account',
-          style: TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
-            color: whiteColor, // Atur warna teks menjadi putih
-          ),
-        ),
-      ),
       body: ListView(
         children: [
           Container(
@@ -69,7 +58,18 @@ class _AccountPageState extends State<AccountPage> {
               builder: (BuildContext context,
                   AsyncSnapshot<DocumentSnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: 5,
+                      itemBuilder: (context, index) {
+                        return AccountShimmer();
+                      },
+                    ),
+                  );
                 }
 
                 if (snapshot.hasError) {
@@ -86,6 +86,9 @@ class _AccountPageState extends State<AccountPage> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(
+                      height: 20,
+                    ),
                     Text(
                       'Personal Data',
                       style: blackTextStyle.copyWith(

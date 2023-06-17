@@ -24,48 +24,53 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _phoneController = TextEditingController();
 
   Future<void> _registerUser() async {
-    // Register user using Firebase Authentication
-    _isLoading.value = true;
-    try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
+    if (_formKey.currentState!.validate()) {
+// Register user using Firebase Authentication
+      _isLoading.value = true;
+      try {
+        UserCredential userCredential =
+            await _auth.createUserWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
 
-      // Save user data to Firestore
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userCredential.user!.uid)
-          .set({
-        'name': _nameController.text,
-        'email': _emailController.text,
-        'phone': _phoneController.text,
-      });
+        // Save user data to Firestore
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set({
+          'name': _nameController.text,
+          'email': _emailController.text,
+          'phone': _phoneController.text,
+        });
 
-      // Set isLoggedIn to true
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isLoggedIn', true);
-
-      await Future.delayed(const Duration(seconds: 2));
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const BottomNavbar(),
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        Fluttertoast.showToast(
+          msg: "Register Successful",
+          gravity: ToastGravity.TOP,
           backgroundColor: Colors.green,
-          content: Text('Berhasil Register'),
-        ),
-      );
-    } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(
-          msg: e.message.toString(), gravity: ToastGravity.TOP);
+        );
+
+        // Tambahkan penundaan selama 2 detik sebelum navigasi
+        await Future.delayed(Duration(seconds: 2));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const BottomNavbar(),
+          ),
+        );
+
+        // Set isLoggedIn to true
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+      } on FirebaseAuthException catch (e) {
+        Fluttertoast.showToast(
+          msg: e.message.toString(),
+          gravity: ToastGravity.TOP,
+        );
+      }
+
+      _isLoading.value = false;
     }
-    _isLoading.value = false;
   }
 
   @override
@@ -114,6 +119,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 //NOTE: FULLNAME INPUT
                 Form(
                   key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -166,6 +172,17 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         contentPadding: const EdgeInsets.all(12),
                       ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Email tidak boleh kosong.';
+                        }
+                        if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
+                            .hasMatch(value)) {
+                          return ("Email tidak valid");
+                        }
+
+                        return null;
+                      },
                     ),
                   ],
                 ),
@@ -209,6 +226,16 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                             ),
                           ),
+                          validator: (value) {
+                            RegExp regex = RegExp(r'^.{6,}$');
+                            if (value!.isEmpty) {
+                              return ("Password tidak boleh kosong.");
+                            }
+                            if (!regex.hasMatch(value)) {
+                              return ("Password (Min. 6 Karakter)");
+                            }
+                            return null;
+                          },
                         ),
                       ],
                     );

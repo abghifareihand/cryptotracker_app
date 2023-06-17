@@ -75,38 +75,47 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
         backgroundColor: Color(0xffF8F8F8),
         elevation: 0.0,
         centerTitle: true,
+        toolbarHeight: 80, // Atur tinggi AppBar menjadi 80
         title: Text(
           widget.coin.name!,
           style: TextStyle(
             color: Colors.black,
           ),
         ),
-        leading: IconButton(
-          icon: Icon(
-            size: 20,
-            Icons.arrow_back_ios,
-            color: Colors.black,
+        leading: Padding(
+          padding: EdgeInsets.all(16), // Atur padding keseluruhan pada leading
+          child: IconButton(
+            iconSize: 20, // Menggunakan iconSize untuk mengatur ukuran ikon
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
         ),
         actions: [
-          Consumer<CoinProvider>(
-            builder: (context, coinProvider, _) {
-              bool isFavorite = coinProvider.isFavorite(widget.coin);
-              return IconButton(
-                icon: Icon(
-                  size: 24,
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? Colors.red : Colors.black,
-                ),
-                onPressed: () {
-                  Provider.of<CoinProvider>(context, listen: false)
-                      .toggleFavorite(widget.coin);
-                },
-              );
-            },
+          Padding(
+            padding:
+                EdgeInsets.all(16), // Atur padding keseluruhan pada actions
+            child: Consumer<CoinProvider>(
+              builder: (context, coinProvider, _) {
+                bool isFavorite = coinProvider.isFavorite(widget.coin);
+                return IconButton(
+                  iconSize:
+                      24, // Menggunakan iconSize untuk mengatur ukuran ikon
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.red : Colors.black,
+                  ),
+                  onPressed: () {
+                    Provider.of<CoinProvider>(context, listen: false)
+                        .toggleFavorite(widget.coin);
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),

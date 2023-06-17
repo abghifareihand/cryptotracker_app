@@ -20,7 +20,7 @@ class FavoritePage extends StatelessWidget {
         if (favoriteCoins.isEmpty) {
           return Center(
             child: Text(
-              'Coin Favorite Belum Ada',
+              'No Data',
               style: TextStyle(fontSize: 16),
             ),
           );
@@ -185,4 +185,3 @@ class FavoritePage extends StatelessWidget {
     );
   }
 }
-
