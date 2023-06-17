@@ -1,4 +1,3 @@
-import 'package:cryptotracker_app/providers/auth_provider.dart';
 import 'package:cryptotracker_app/providers/coin_provider.dart';
 import 'package:cryptotracker_app/providers/news_provider.dart';
 import 'package:cryptotracker_app/ui/pages/splash/splash_page.dart';

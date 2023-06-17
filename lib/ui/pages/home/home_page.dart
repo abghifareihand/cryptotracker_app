@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cryptotracker_app/providers/coin_provider.dart';
-import 'package:cryptotracker_app/providers/auth_provider.dart';
 import 'package:cryptotracker_app/shared/theme.dart';
 import 'package:cryptotracker_app/ui/pages/home/widgets/coin_card.dart';
 import 'package:cryptotracker_app/ui/pages/home/widgets/shimmer/coin_card_shimmer.dart';
