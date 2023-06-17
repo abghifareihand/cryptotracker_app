@@ -14,13 +14,12 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
   Future<void> startTime() async {
-    final pref = await SharedPreferences.getInstance();
-    String? getEmail = pref.getString('email');
-    print(getEmail);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     Future.delayed(
       const Duration(seconds: 3),
       () {
-        if (getEmail != null) {
+        if (isLoggedIn) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const BottomNavbar()),

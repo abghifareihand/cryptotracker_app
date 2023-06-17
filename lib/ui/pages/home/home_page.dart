@@ -19,6 +19,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final User? user = FirebaseAuth.instance.currentUser;
   @override
   void initState() {
     super.initState();
@@ -49,10 +50,31 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Consumer<AuthProvider>(
-                      builder: (context, authProvider, child) {
-                        String? displayName = authProvider.loggedInUser?.name;
-                        String? displayEmail = authProvider.loggedInUser?.email;
+                    child: FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(user!.uid)
+                          .get(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<DocumentSnapshot> snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+
+                        if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        }
+
+                        if (!snapshot.hasData || !snapshot.data!.exists) {
+                          return const Center(child: Text('Data not found'));
+                        }
+
+                        Map<String, dynamic>? userData =
+                            snapshot.data!.data() as Map<String, dynamic>?;
+
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -63,15 +85,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             Text(
-                              displayName ?? '',
-                              style: blackTextStyle.copyWith(
-                                fontSize: 20,
-                                fontWeight: semiBold,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              displayEmail ?? '',
+                              "${userData?['name'] ?? ''}",
                               style: blackTextStyle.copyWith(
                                 fontSize: 20,
                                 fontWeight: semiBold,

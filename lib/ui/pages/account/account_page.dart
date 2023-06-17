@@ -1,12 +1,44 @@
-import 'package:cryptotracker_app/models/user_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cryptotracker_app/shared/theme.dart';
 import 'package:cryptotracker_app/ui/pages/auth/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cryptotracker_app/providers/auth_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AccountPage extends StatelessWidget {
+class AccountPage extends StatefulWidget {
   const AccountPage({Key? key});
+
+  @override
+  State<AccountPage> createState() => _AccountPageState();
+}
+
+class _AccountPageState extends State<AccountPage> {
+  final User? user = FirebaseAuth.instance.currentUser;
+  final _isLoading = ValueNotifier<bool>(false);
+
+  Future<void> _logoutUser() async {
+    _isLoading.value = true;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', false);
+
+    await FirebaseAuth.instance.signOut();
+
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LoginPage(),
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('Berhasil Logout'),
+      ),
+    );
+    _isLoading.value = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +61,28 @@ class AccountPage extends StatelessWidget {
         children: [
           Container(
             padding: EdgeInsets.all(16),
-            child: Consumer<AuthProvider>(
-              builder: (context, authProvider, _) {
-                UserModel? loggedInUser = authProvider.loggedInUser;
+            child: FutureBuilder<DocumentSnapshot>(
+              future: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(user!.uid)
+                  .get(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<DocumentSnapshot> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+
+                if (!snapshot.hasData || !snapshot.data!.exists) {
+                  return const Center(child: Text('Data not found'));
+                }
+
+                Map<String, dynamic>? userData =
+                    snapshot.data!.data() as Map<String, dynamic>?;
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -56,7 +107,7 @@ class AccountPage extends StatelessWidget {
                               ),
                             ),
                             subtitle: Text(
-                              loggedInUser?.name ?? "",
+                              "${userData?['name'] ?? ''}",
                               style: greyTextStyle.copyWith(
                                 fontSize: 16,
                                 fontWeight: light,
@@ -75,7 +126,7 @@ class AccountPage extends StatelessWidget {
                               ),
                             ),
                             subtitle: Text(
-                              loggedInUser?.email ?? "",
+                              "${userData?['email'] ?? ''}",
                               style: greyTextStyle.copyWith(
                                 fontSize: 16,
                                 fontWeight: light,
@@ -87,14 +138,14 @@ class AccountPage extends StatelessWidget {
                           ),
                           ListTile(
                             title: Text(
-                              'Hobby',
+                              'Phone',
                               style: blackTextStyle.copyWith(
                                 fontSize: 16,
                                 fontWeight: semiBold,
                               ),
                             ),
                             subtitle: Text(
-                              loggedInUser?.hobby ?? "",
+                              "${userData?['phone'] ?? ''}",
                               style: greyTextStyle.copyWith(
                                 fontSize: 16,
                                 fontWeight: light,
@@ -143,7 +194,25 @@ class AccountPage extends StatelessWidget {
                           ListTile(
                             leading: Icon(Icons.book),
                             title: Text(
-                              'FAQ',
+                              'Terms and Conditions',
+                              style: blackTextStyle.copyWith(
+                                fontSize: 16,
+                                fontWeight: medium,
+                              ),
+                            ),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                            ),
+                            onTap: () {},
+                            shape: Border(
+                              bottom: BorderSide(color: Colors.grey.shade300),
+                            ),
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.privacy_tip_outlined),
+                            title: Text(
+                              'Privacy Policy',
                               style: blackTextStyle.copyWith(
                                 fontSize: 16,
                                 fontWeight: medium,
@@ -181,60 +250,53 @@ class AccountPage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 20.0),
-                    Container(
-                      width: double.infinity,
-                      height: 50,
-                      child: TextButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('Logout'),
-                                content:
-                                    Text('Are you sure you want to logout?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context)
-                                          .pop(); // Tutup dialog
-                                    },
-                                    child: Text('No'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      // Logout dan pindahkan ke halaman login
-                                      Provider.of<AuthProvider>(context,
-                                              listen: false)
-                                          .logout();
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => LoginPage(),
+                    ValueListenableBuilder<bool>(
+                      valueListenable: _isLoading,
+                      builder: (context, value, child) {
+                        return SizedBox(
+                          height: 48,
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _logoutUser,
+                            child: _isLoading.value
+                                ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          color: whiteColor,
                                         ),
-                                      );
-                                    },
-                                    child: Text('Yes'),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      Text(
+                                        'Loading...',
+                                        style: whiteTextStyle.copyWith(
+                                          fontWeight: semiBold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : Text(
+                                    'Logout',
+                                    style: whiteTextStyle.copyWith(
+                                      fontWeight: semiBold,
+                                      fontSize: 16,
+                                    ),
                                   ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: primaryNavbarColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            style: TextButton.styleFrom(
+                              backgroundColor: primaryNavbarColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          'Logout',
-                          style: whiteTextStyle.copyWith(
-                            fontSize: 16,
-                            fontWeight: semiBold,
-                          ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
                   ],
                 );

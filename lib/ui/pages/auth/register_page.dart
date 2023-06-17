@@ -1,11 +1,10 @@
-import 'package:cryptotracker_app/providers/auth_provider.dart';
 import 'package:cryptotracker_app/shared/theme.dart';
 import 'package:cryptotracker_app/ui/widgets/bottom_navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -15,10 +14,59 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController hobbyController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _auth = FirebaseAuth.instance;
+  final _isLoading = ValueNotifier<bool>(false);
+  final _passwordVisible = ValueNotifier<bool>(true);
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+
+  Future<void> _registerUser() async {
+    // Register user using Firebase Authentication
+    _isLoading.value = true;
+    try {
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      // Save user data to Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({
+        'name': _nameController.text,
+        'email': _emailController.text,
+        'phone': _phoneController.text,
+      });
+
+      // Set isLoggedIn to true
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
+
+      await Future.delayed(const Duration(seconds: 2));
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const BottomNavbar(),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.green,
+          content: Text('Berhasil Register'),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      Fluttertoast.showToast(
+          msg: e.message.toString(), gravity: ToastGravity.TOP);
+    }
+    _isLoading.value = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,28 +112,32 @@ class _RegisterPageState extends State<RegisterPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 //NOTE: FULLNAME INPUT
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Full Name',
-                      style: blackTextStyle.copyWith(
-                        fontWeight: medium,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    TextFormField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Full Name',
+                        style: blackTextStyle.copyWith(
+                          fontWeight: medium,
                         ),
-                        contentPadding: const EdgeInsets.all(12),
                       ),
-                    ),
-                  ],
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      TextFormField(
+                        controller: _nameController,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          contentPadding: const EdgeInsets.all(12),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(
                   height: 16,
@@ -104,7 +156,10 @@ class _RegisterPageState extends State<RegisterPage> {
                       height: 8,
                     ),
                     TextFormField(
-                      controller: emailController,
+                      style: blackTextStyle,
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -118,29 +173,46 @@ class _RegisterPageState extends State<RegisterPage> {
                   height: 16,
                 ),
                 // NOTE: PASS INPUT
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Password',
-                      style: blackTextStyle.copyWith(
-                        fontWeight: medium,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    TextFormField(
-                      controller: passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                ValueListenableBuilder<bool>(
+                  valueListenable: _passwordVisible,
+                  builder: (context, value, child) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Password',
+                          style: blackTextStyle.copyWith(
+                            fontWeight: medium,
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.all(12),
-                      ),
-                    ),
-                  ],
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: _passwordVisible.value,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            contentPadding: const EdgeInsets.all(12),
+                            suffixIcon: GestureDetector(
+                              onTap: () {
+                                _passwordVisible.value =
+                                    !_passwordVisible.value;
+                              },
+                              child: Icon(
+                                _passwordVisible.value
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: greyColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(
                   height: 16,
@@ -149,7 +221,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Hobby',
+                      'Phone',
                       style: blackTextStyle.copyWith(
                         fontWeight: medium,
                       ),
@@ -158,7 +230,10 @@ class _RegisterPageState extends State<RegisterPage> {
                       height: 8,
                     ),
                     TextFormField(
-                      controller: hobbyController,
+                      style: blackTextStyle,
+                      textInputAction: TextInputAction.done,
+                      keyboardType: TextInputType.phone,
+                      controller: _phoneController,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -175,50 +250,48 @@ class _RegisterPageState extends State<RegisterPage> {
                 SizedBox(
                   height: 30,
                 ),
-                Consumer<AuthProvider>(
-                  builder: (context, authProvider, child) {
-                    return Container(
+                ValueListenableBuilder<bool>(
+                  valueListenable: _isLoading,
+                  builder: (context, value, child) {
+                    return SizedBox(
+                      height: 48,
                       width: double.infinity,
-                      height: 50,
-                      child: TextButton(
-                        onPressed: () async {
-                          bool registered = await authProvider.register(
-                            nameController.text,
-                            emailController.text,
-                            passwordController.text,
-                            hobbyController.text,
-                          );
-                          if (registered) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Registration successful!'),
+                      child: ElevatedButton(
+                        onPressed: _registerUser,
+                        child: _isLoading.value
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      color: whiteColor,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    'Loading...',
+                                    style: whiteTextStyle.copyWith(
+                                      fontWeight: semiBold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Text(
+                                'Register',
+                                style: whiteTextStyle.copyWith(
+                                  fontWeight: semiBold,
+                                  fontSize: 16,
+                                ),
                               ),
-                            );
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => BottomNavbar()),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    'Registration failed. Please try again.'),
-                              ),
-                            );
-                          }
-                        },
                         style: TextButton.styleFrom(
                           backgroundColor: primaryNavbarColor,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(56),
-                          ),
-                        ),
-                        child: Text(
-                          'Register',
-                          style: whiteTextStyle.copyWith(
-                            fontSize: 16,
-                            fontWeight: semiBold,
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                       ),
