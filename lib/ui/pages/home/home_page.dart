@@ -59,7 +59,10 @@ class _HomePageState extends State<HomePage> {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return const Center(
-                              child: CircularProgressIndicator());
+                            child: CircularProgressIndicator(
+                              color: primaryNavbarColor,
+                            ),
+                          );
                         }
 
                         if (snapshot.hasError) {
@@ -96,18 +99,18 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                   ),
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: AssetImage(
-                          'assets/profile.png',
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   width: 60,
+                  //   height: 60,
+                  //   decoration: const BoxDecoration(
+                  //     shape: BoxShape.circle,
+                  //     image: DecorationImage(
+                  //       image: AssetImage(
+                  //         'assets/profile.png',
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
