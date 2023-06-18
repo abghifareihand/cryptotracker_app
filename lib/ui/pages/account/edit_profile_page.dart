@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cryptotracker_app/shared/theme.dart';
+import 'package:cryptotracker_app/ui/widgets/bottom_navbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
+  const EditProfilePage({Key? key});
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
@@ -12,6 +14,46 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final User? user = FirebaseAuth.instance.currentUser;
+  final TextEditingController _nameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.text = user?.displayName ?? '';
+  }
+
+  Future<void> _updateProfile() async {
+    try {
+      // Update nama di Firebase Auth
+      await user?.updateDisplayName(_nameController.text);
+
+      // Update nama di Firestore
+      FirebaseFirestore.instance.collection('users').doc(user!.uid).update({
+        'name': _nameController.text,
+      });
+
+      Fluttertoast.showToast(
+        msg: "Profile updated successfully",
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.green,
+      );
+
+      await Future.delayed(Duration(seconds: 1));
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BottomNavbar(),
+        ),
+      );
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Failed to update profile. Please try again.",
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,11 +127,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         const SizedBox(
                           height: 8,
                         ),
-                        TextFormField(
-                          enabled: false,
+                        TextField(
+                          controller: _nameController,
                           decoration: InputDecoration(
-                            labelText: "${userData?['name'] ?? ''}",
-                            labelStyle: blackTextStyle.copyWith(
+                            hintText: "${userData?['name'] ?? ''}",
+                            hintStyle: blackTextStyle.copyWith(
                               fontSize: 16,
                               fontWeight: medium,
                             ),
@@ -120,8 +162,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         TextFormField(
                           enabled: false,
                           decoration: InputDecoration(
-                            labelText: "${userData?['email'] ?? ''}",
-                            labelStyle: blackTextStyle.copyWith(
+                            hintText: "${userData?['email'] ?? ''}",
+                            hintStyle: blackTextStyle.copyWith(
                               fontSize: 16,
                               fontWeight: medium,
                             ),
@@ -152,8 +194,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         TextFormField(
                           enabled: false,
                           decoration: InputDecoration(
-                            labelText: "${userData?['phone'] ?? ''}",
-                            labelStyle: blackTextStyle.copyWith(
+                            hintText: "${userData?['phone'] ?? ''}",
+                            hintStyle: blackTextStyle.copyWith(
                               fontSize: 16,
                               fontWeight: medium,
                             ),
@@ -166,7 +208,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       ],
                     ),
                     const SizedBox(
-                      height: 16,
+                      height: 40,
+                    ),
+                    SizedBox(
+                      height: 50,
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _updateProfile,
+                        child: Text(
+                          'Update Profile',
+                          style: whiteTextStyle.copyWith(
+                            fontWeight: semiBold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          backgroundColor: primaryNavbarColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(56),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),

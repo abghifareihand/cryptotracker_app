@@ -51,7 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
         );
 
         // Tambahkan penundaan selama 2 detik sebelum navigasi
-        await Future.delayed(Duration(seconds: 2));
+        await Future.delayed(Duration(seconds: 1));
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -281,7 +281,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   valueListenable: _isLoading,
                   builder: (context, value, child) {
                     return SizedBox(
-                      height: 48,
+                      height: 50,
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _registerUser,
@@ -318,7 +318,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         style: TextButton.styleFrom(
                           backgroundColor: primaryNavbarColor,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(56),
                           ),
                         ),
                       ),

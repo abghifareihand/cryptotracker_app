@@ -1,4 +1,5 @@
 import 'package:cryptotracker_app/shared/theme.dart';
+import 'package:cryptotracker_app/ui/pages/auth/forgot_password_page.dart';
 import 'package:cryptotracker_app/ui/pages/auth/register_page.dart';
 import 'package:cryptotracker_app/ui/widgets/bottom_navbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -37,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
         );
 
         // Tambahkan penundaan selama 2 detik sebelum navigasi
-        await Future.delayed(Duration(seconds: 2));
+        await Future.delayed(Duration(seconds: 1));
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -49,14 +50,32 @@ class _LoginPageState extends State<LoginPage> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
       } on FirebaseAuthException catch (e) {
-        Fluttertoast.showToast(
-          msg: e.message.toString(),
-          gravity: ToastGravity.TOP,
-        );
+        if (e.code == 'user-not-found') {
+          Fluttertoast.showToast(
+            msg: 'Email or password is incorrect',
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.red,
+          );
+        } else {
+          Fluttertoast.showToast(
+            msg: 'An error occurred. Please try again later.',
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.red,
+          );
+        }
       }
 
       _isLoading.value = false;
     }
+  }
+
+  Future<void> _forgotPassword() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ForgotPasswordPage(),
+      ),
+    );
   }
 
   @override
@@ -203,11 +222,17 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: Text(
-                      'Forgot Password',
-                      style: blackTextStyle,
+                    child: GestureDetector(
+                      onTap: _forgotPassword,
+                      child: Text(
+                        'Forgot Password?',
+                        style: blackTextStyle.copyWith(
+                          fontWeight: semiBold,
+                        ),
+                      ),
                     ),
                   ),
+
                   SizedBox(
                     height: 30,
                   ),
@@ -215,7 +240,7 @@ class _LoginPageState extends State<LoginPage> {
                     valueListenable: _isLoading,
                     builder: (context, value, child) {
                       return SizedBox(
-                        height: 48,
+                        height: 50,
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: _loginUser,
@@ -252,7 +277,7 @@ class _LoginPageState extends State<LoginPage> {
                           style: TextButton.styleFrom(
                             backgroundColor: primaryNavbarColor,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(56),
                             ),
                           ),
                         ),

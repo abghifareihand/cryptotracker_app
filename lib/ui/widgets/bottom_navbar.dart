@@ -14,7 +14,7 @@ class BottomNavbar extends StatefulWidget {
 }
 
 class _BottomNavbarState extends State<BottomNavbar> {
-  int _selectedIndex = 0;
+  int selectedIndex = 0;
   List pages = [
     const HomePage(),
     const FavoritePage(),
@@ -26,7 +26,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: bottomNavBar(),
-      body: pages[_selectedIndex],
+      body: pages[selectedIndex],
     );
   }
 
@@ -58,11 +58,11 @@ class _BottomNavbarState extends State<BottomNavbar> {
           activeColor: primaryNavbarColor,
           tabBackgroundColor: primaryNavbarColor.withOpacity(0.15),
           gap: 10,
-          selectedIndex: _selectedIndex,
+          selectedIndex: selectedIndex,
           onTabChange: (index) {
-            if (_selectedIndex != index) {
+            if (selectedIndex != index) {
               setState(() {
-                _selectedIndex = index;
+                selectedIndex = index;
               });
             }
           },
