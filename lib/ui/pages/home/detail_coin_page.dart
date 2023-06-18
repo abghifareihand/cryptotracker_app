@@ -196,6 +196,10 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
                           borderWidth: 2,
                         ),
                       ],
+                      zoomPanBehavior: ZoomPanBehavior(
+                        enablePanning: true,
+                        enableDoubleTapZooming: true,
+                      ),
                     ),
             ),
             SizedBox(height: 24),
@@ -204,11 +208,6 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  // _buildIntervalButton('1D'),
-                  // _buildIntervalButton('7D'),
-                  // _buildIntervalButton('14D'),
-                  // _buildIntervalButton('1M'),
-                  // _buildIntervalButton('3M'),
                   _buildTab('1D'),
                   _buildTab('7D'),
                   _buildTab('14D'),
@@ -318,50 +317,6 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
 
     // Warna default jika data kosong
     return Colors.blue.withOpacity(0.5);
-  }
-
-  Widget _buildPriceInfo({
-    required String title,
-    required String value,
-    bool isPositive = true,
-  }) {
-    return Column(
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
-        ),
-        SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: isPositive ? greenColor : redColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildIntervalButton(String interval) {
-    return ElevatedButton(
-      onPressed: () {
-        getMarketChart(interval);
-      },
-      style: ElevatedButton.styleFrom(
-        primary: selectedTab == interval ? primaryNavbarColor : Colors.grey,
-      ),
-      child: Text(
-        interval,
-        style: TextStyle(
-          color: Colors.white,
-        ),
-      ),
-    );
   }
 
   Widget _buildTab(String interval) {
