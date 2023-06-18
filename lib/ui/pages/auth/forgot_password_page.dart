@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cryptotracker_app/shared/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
