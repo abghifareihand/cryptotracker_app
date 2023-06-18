@@ -195,7 +195,7 @@ class _AccountPageState extends State<AccountPage> {
                     shape: BoxShape.circle,
                     image: DecorationImage(
                       image: AssetImage(
-                        'assets/profile.png',
+                        'assets/avatar.png',
                       ),
                     ),
                   ),

@@ -15,6 +15,7 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final User? user = FirebaseAuth.instance.currentUser;
   final TextEditingController _nameController = TextEditingController();
+  final _isLoading = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -24,6 +25,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> _updateProfile() async {
     try {
+      _isLoading.value = true;
       // Update nama di Firebase Auth
       await user?.updateDisplayName(_nameController.text);
 
@@ -52,6 +54,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         gravity: ToastGravity.TOP,
         backgroundColor: Colors.red,
       );
+      _isLoading.value = false;
     }
   }
 
@@ -210,25 +213,53 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     const SizedBox(
                       height: 40,
                     ),
-                    SizedBox(
-                      height: 50,
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _updateProfile,
-                        child: Text(
-                          'Update Profile',
-                          style: whiteTextStyle.copyWith(
-                            fontWeight: semiBold,
-                            fontSize: 16,
+                    ValueListenableBuilder<bool>(
+                      valueListenable: _isLoading,
+                      builder: (context, value, child) {
+                        return SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: _updateProfile,
+                            child: _isLoading.value
+                                ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          color: whiteColor,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      Text(
+                                        'Loading...',
+                                        style: whiteTextStyle.copyWith(
+                                          fontWeight: semiBold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : Text(
+                                    'Update Profile',
+                                    style: whiteTextStyle.copyWith(
+                                      fontWeight: semiBold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryNavbarColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(56),
+                              ),
+                            ),
                           ),
-                        ),
-                        style: TextButton.styleFrom(
-                          backgroundColor: primaryNavbarColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(56),
-                          ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
                   ],
                 ),

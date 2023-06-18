@@ -20,6 +20,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     String email = _emailController.text.trim();
 
     try {
+      _isLoading.value = true;
       await _auth.sendPasswordResetEmail(
         email: email,
       );
@@ -46,6 +47,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           backgroundColor: Colors.red,
         );
       }
+      _isLoading.value = false;
     }
   }
 
