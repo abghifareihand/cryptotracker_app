@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cryptotracker_app/shared/theme.dart';
 import 'package:cryptotracker_app/ui/pages/account/edit_profile_page.dart';
@@ -7,6 +9,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({Key? key});
@@ -17,6 +21,44 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> {
   final User? user = FirebaseAuth.instance.currentUser;
+  String? _imageUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserPhoto();
+  }
+
+  void _loadUserPhoto() async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    Reference ref =
+        FirebaseStorage.instance.ref().child('photo_profile/$uid/profile.jpg');
+    try {
+      String? url = await ref.getDownloadURL();
+      setState(() {
+        _imageUrl = url;
+      });
+    } catch (e) {
+      print('Foto tidak ditemukan');
+      setState(() {
+        _imageUrl = null;
+      });
+    }
+  }
+
+  void _pickImage() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.getImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      Reference ref = FirebaseStorage.instance
+          .ref()
+          .child('photo_profile/$uid/profile.jpg');
+      await ref.putFile(File(pickedImage.path));
+      _loadUserPhoto();
+    }
+  }
+
   Future<void> _logoutUser() async {
     showDialog(
       context: context,
@@ -185,64 +227,80 @@ class _AccountPageState extends State<AccountPage> {
               borderRadius: BorderRadius.circular(20),
               color: Colors.white,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      image: AssetImage(
-                        'assets/avatar.png',
+            child: StreamBuilder<DocumentSnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(user!.uid)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  String name = snapshot.data!.get('name');
+                  String email = snapshot.data!.get('email');
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 120,
+                        height: 120,
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: _imageUrl != null
+                                    ? DecorationImage(
+                                        image: NetworkImage(_imageUrl!),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : DecorationImage(
+                                        image: AssetImage('assets/avatar.png'),
+                                      ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.blue,
+                                ),
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.edit,
+                                    color: Colors.white,
+                                  ),
+                                  onPressed: _pickImage,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16),
-                FutureBuilder<DocumentSnapshot>(
-                  future: FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(user!.uid)
-                      .get(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<DocumentSnapshot> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    }
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    }
-                    if (!snapshot.hasData || !snapshot.data!.exists) {
-                      return Text('Data not found');
-                    }
-
-                    Map<String, dynamic>? userData =
-                        snapshot.data!.data() as Map<String, dynamic>?;
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          '${userData?['name'] ?? ''}',
+                      Text(
+                          name,
                           style: blackTextStyle.copyWith(
                             fontSize: 22,
                             fontWeight: bold,
                           ),
                         ),
-                        Text(
-                          '${userData?['email'] ?? ''}',
-                          style: greyTextStyle.copyWith(
+                      Text(
+                          email,
+                          style: blackTextStyle.copyWith(
                             fontSize: 16,
                             fontWeight: semiBold,
                           ),
                         ),
-                      ],
-                    );
-                  },
-                ),
-              ],
+                      SizedBox(height: 16),
+                    ],
+                  );
+                }
+                return CircularProgressIndicator();
+              },
             ),
           ),
           SizedBox(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 const Color blackColor = Color(0xff000000);
 const Color whiteColor = Color(0xffFFFFFF);
@@ -23,25 +22,32 @@ double deviceHeight(BuildContext context) {
   return MediaQuery.of(context).size.height;
 }
 
-TextStyle blackTextStyle = GoogleFonts.inter(
-  color: blackColor,
-);
-
-TextStyle whiteTextStyle = GoogleFonts.inter(
-  color: whiteColor,
-);
-
-TextStyle greyTextStyle = GoogleFonts.inter(
+TextStyle greyTextStyle = TextStyle(
+  fontFamily: 'Poppins',
   color: greyColor,
 );
 
-TextStyle redTextStyle = GoogleFonts.inter(
+TextStyle blackTextStyle= TextStyle(
+  fontFamily: 'Poppins',
+  color: blackColor,
+);
+
+TextStyle whiteTextStyle = TextStyle(
+  fontFamily: 'Poppins',
+  color: whiteColor,
+);
+
+TextStyle greenTextStyle = TextStyle(
+  fontFamily: 'Poppins',
+  color: greenColor,
+);
+
+TextStyle redTextStyle = TextStyle(
+  fontFamily: 'Poppins',
   color: redColor,
 );
 
-TextStyle greenTextStyle = GoogleFonts.inter(
-  color: greenColor,
-);
+
 
 FontWeight light = FontWeight.w300;
 FontWeight regular = FontWeight.w400;

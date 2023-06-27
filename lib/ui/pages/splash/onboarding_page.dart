@@ -33,7 +33,7 @@ class OnboardingPage extends StatelessWidget {
                   'Cryptotracker',
                   style: blackTextStyle.copyWith(
                     fontSize: 28,
-                    fontWeight: extraBold,
+                    fontWeight: bold,
                   ),
                 ),
                 const SizedBox(

@@ -46,72 +46,56 @@ class _HomePageState extends State<HomePage> {
                 right: 16,
                 top: 30,
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: FutureBuilder<DocumentSnapshot>(
-                      future: FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(user!.uid)
-                          .get(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<DocumentSnapshot> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              color: primaryNavbarColor,
-                            ),
-                          );
-                        }
-
-                        if (snapshot.hasError) {
-                          return Center(
-                              child: Text('Error: ${snapshot.error}'));
-                        }
-
-                        if (!snapshot.hasData || !snapshot.data!.exists) {
-                          return const Center(child: Text('Data not found'));
-                        }
-
-                        Map<String, dynamic>? userData =
-                            snapshot.data!.data() as Map<String, dynamic>?;
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Halo,",
-                              style: greyTextStyle.copyWith(
-                                fontSize: 16,
+              child: StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user!.uid)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    String name = snapshot.data!.get('name');
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Halo,",
+                                style: greyTextStyle.copyWith(
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
-                            Text(
-                              "${userData?['name'] ?? ''}",
-                              style: blackTextStyle.copyWith(
-                                fontSize: 20,
-                                fontWeight: semiBold,
+                              Text(
+                                name,
+                                style: blackTextStyle.copyWith(
+                                  fontSize: 20,
+                                  fontWeight: semiBold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: AssetImage(
-                          'assets/avatar.png',
+                            ],
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                ],
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: AssetImage(
+                                'assets/avatar.png',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
               ),
             ),
 
