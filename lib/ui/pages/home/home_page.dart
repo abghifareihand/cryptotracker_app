@@ -6,6 +6,7 @@ import 'package:cryptotracker_app/ui/pages/home/widgets/shimmer/coin_card_shimme
 import 'package:cryptotracker_app/ui/pages/home/widgets/coin_tile.dart';
 import 'package:cryptotracker_app/ui/pages/home/widgets/shimmer/coin_tile_shimmer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -19,15 +20,35 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final User? user = FirebaseAuth.instance.currentUser;
+  String? _imageUrl;
+
   @override
   void initState() {
     super.initState();
+    _getImageUrl();
     Provider.of<CoinProvider>(context, listen: false).getAllCoins();
   }
 
   Future<void> _refreshData() async {
     await Provider.of<CoinProvider>(context, listen: false)
       ..getAllCoins();
+  }
+
+  void _getImageUrl() async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    Reference ref =
+        FirebaseStorage.instance.ref().child('photo_profile/$uid/profile.jpg');
+    try {
+      String? url = await ref.getDownloadURL();
+      setState(() {
+        _imageUrl = url;
+      });
+    } catch (e) {
+      print('Foto tidak ditemukan');
+      setState(() {
+        _imageUrl = null;
+      });
+    }
   }
 
   @override
@@ -80,13 +101,17 @@ class _HomePageState extends State<HomePage> {
                         Container(
                           width: 60,
                           height: 60,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            image: DecorationImage(
-                              image: AssetImage(
-                                'assets/avatar.png',
-                              ),
-                            ),
+                            image: _imageUrl != null
+                                ? DecorationImage(
+                                    image: NetworkImage(_imageUrl!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : DecorationImage(
+                                    image: AssetImage('assets/avatar.png'),
+                                    fit: BoxFit.cover,
+                                  ),
                           ),
                         ),
                       ],

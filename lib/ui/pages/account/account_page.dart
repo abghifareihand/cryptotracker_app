@@ -267,7 +267,7 @@ class _AccountPageState extends State<AccountPage> {
                                 height: 40,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.blue,
+                                  color: primaryNavbarColor,
                                 ),
                                 child: IconButton(
                                   icon: Icon(
@@ -281,25 +281,29 @@ class _AccountPageState extends State<AccountPage> {
                           ],
                         ),
                       ),
+                      SizedBox(
+                        height: 16,
+                      ),
                       Text(
-                          name,
-                          style: blackTextStyle.copyWith(
-                            fontSize: 22,
-                            fontWeight: bold,
-                          ),
+                        name,
+                        style: blackTextStyle.copyWith(
+                          fontSize: 22,
+                          fontWeight: bold,
                         ),
+                      ),
                       Text(
-                          email,
-                          style: blackTextStyle.copyWith(
-                            fontSize: 16,
-                            fontWeight: semiBold,
-                          ),
+                        email,
+                        style: blackTextStyle.copyWith(
+                          fontSize: 16,
+                          fontWeight: semiBold,
                         ),
-                      SizedBox(height: 16),
+                      ),
                     ],
                   );
                 }
-                return CircularProgressIndicator();
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
               },
             ),
           ),
