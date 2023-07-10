@@ -207,6 +207,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         TextFormField(
                           controller: _passwordController,
+                          textInputAction: TextInputAction.next,
                           obscureText: _passwordVisible.value,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
