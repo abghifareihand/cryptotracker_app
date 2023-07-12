@@ -19,7 +19,7 @@ class CoinDetailPage extends StatefulWidget {
 
 class _CoinDetailPageState extends State<CoinDetailPage> {
   final currencyFormatter =
-      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
+      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
   final ApiServices apiServices = ApiServices();
   List<ChartSampleData> chartData = [];
   String selectedTab = '1D';
@@ -226,35 +226,33 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
+                    'Market Cap Rank:',
+                    style: greyTextStyle.copyWith(
+                      fontSize: 12,
+                      fontWeight: medium,
+                    ),
+                  ),
+                  Text(
+                    '#${widget.coin.marketCapRank}',
+                    style: blackTextStyle.copyWith(
+                      fontSize: 16,
+                      fontWeight: medium,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
                     'Market Cap:',
                     style: greyTextStyle.copyWith(
                       fontSize: 12,
                       fontWeight: medium,
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${currencyFormatter.format(widget.coin.marketCap)}',
-                        style: blackTextStyle.copyWith(
-                          fontSize: 16,
-                          fontWeight: medium,
-                        ),
-                      ),
-                      Text(
-                        '${widget.coin.marketCapChangePercentage24H!.toStringAsFixed(1)}%',
-                        style: widget.coin.marketCapChangePercentage24H! >= 0
-                            ? greenTextStyle.copyWith(
-                                fontSize: 16,
-                                fontWeight: semiBold,
-                              )
-                            : redTextStyle.copyWith(
-                                fontSize: 16,
-                                fontWeight: semiBold,
-                              ),
-                      ),
-                    ],
+                  Text(
+                    '${currencyFormatter.format(widget.coin.marketCap)}',
+                    style: blackTextStyle.copyWith(
+                      fontSize: 16,
+                      fontWeight: medium,
+                    ),
                   ),
                   SizedBox(height: 16),
                   Text(
@@ -266,6 +264,36 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
                   ),
                   Text(
                     '${currencyFormatter.format(widget.coin.totalVolume)}',
+                    style: blackTextStyle.copyWith(
+                      fontSize: 16,
+                      fontWeight: medium,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    '24H High:',
+                    style: greyTextStyle.copyWith(
+                      fontSize: 12,
+                      fontWeight: medium,
+                    ),
+                  ),
+                  Text(
+                    '${currencyFormatter.format(widget.coin.high24)}',
+                    style: blackTextStyle.copyWith(
+                      fontSize: 16,
+                      fontWeight: medium,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    '24H Low:',
+                    style: greyTextStyle.copyWith(
+                      fontSize: 12,
+                      fontWeight: medium,
+                    ),
+                  ),
+                  Text(
+                    '${currencyFormatter.format(widget.coin.low24)}',
                     style: blackTextStyle.copyWith(
                       fontSize: 16,
                       fontWeight: medium,
