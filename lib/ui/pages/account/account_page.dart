@@ -21,43 +21,43 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> {
   final User? user = FirebaseAuth.instance.currentUser;
-  String? _imageUrl;
+  //String? _imageUrl;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadUserPhoto();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _loadUserPhoto();
+  // }
 
-  void _loadUserPhoto() async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    Reference ref =
-        FirebaseStorage.instance.ref().child('photo_profile/$uid/profile.jpg');
-    try {
-      String? url = await ref.getDownloadURL();
-      setState(() {
-        _imageUrl = url;
-      });
-    } catch (e) {
-      print('Foto tidak ditemukan');
-      setState(() {
-        _imageUrl = null;
-      });
-    }
-  }
+  // void _loadUserPhoto() async {
+  //   String uid = FirebaseAuth.instance.currentUser!.uid;
+  //   Reference ref =
+  //       FirebaseStorage.instance.ref().child('photo_profile/$uid/profile.jpg');
+  //   try {
+  //     String? url = await ref.getDownloadURL();
+  //     setState(() {
+  //       _imageUrl = url;
+  //     });
+  //   } catch (e) {
+  //     print('Foto tidak ditemukan');
+  //     setState(() {
+  //       _imageUrl = null;
+  //     });
+  //   }
+  // }
 
-  void _pickImage() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.getImage(source: ImageSource.gallery);
-    if (pickedImage != null) {
-      String uid = FirebaseAuth.instance.currentUser!.uid;
-      Reference ref = FirebaseStorage.instance
-          .ref()
-          .child('photo_profile/$uid/profile.jpg');
-      await ref.putFile(File(pickedImage.path));
-      _loadUserPhoto();
-    }
-  }
+  // void _pickImage() async {
+  //   final picker = ImagePicker();
+  //   final pickedImage = await picker.getImage(source: ImageSource.gallery);
+  //   if (pickedImage != null) {
+  //     String uid = FirebaseAuth.instance.currentUser!.uid;
+  //     Reference ref = FirebaseStorage.instance
+  //         .ref()
+  //         .child('photo_profile/$uid/profile.jpg');
+  //     await ref.putFile(File(pickedImage.path));
+  //     _loadUserPhoto();
+  //   }
+  // }
 
   Future<void> _logoutUser() async {
     showDialog(
@@ -151,7 +151,7 @@ class _AccountPageState extends State<AccountPage> {
         return DialogInfo(
           title: 'Settings',
           content:
-              'Aplikasi ini bisa membantu anda semua menjadi kaya raya aowkaowkokwa',
+              'Coming soon',
         );
       },
     );
@@ -164,7 +164,7 @@ class _AccountPageState extends State<AccountPage> {
         return DialogInfo(
           title: 'Help and Support',
           content:
-              'Aplikasi ini bisa membantu anda semua menjadi kaya raya aowkaowkokwa',
+              'Coming soon',
         );
       },
     );
@@ -177,7 +177,7 @@ class _AccountPageState extends State<AccountPage> {
         return DialogInfo(
           title: 'Privacy Policy',
           content:
-              'Aplikasi ini bisa membantu anda semua menjadi kaya raya aowkaowkokwa',
+              'Coming soon',
         );
       },
     );
@@ -190,7 +190,7 @@ class _AccountPageState extends State<AccountPage> {
         return DialogInfo(
           title: 'About App',
           content:
-              'Aplikasi ini bisa membantu anda semua menjadi kaya raya aowkaowkokwa',
+              'Coming soon',
         );
       },
     );
@@ -249,14 +249,9 @@ class _AccountPageState extends State<AccountPage> {
                               height: 120,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                image: _imageUrl != null
-                                    ? DecorationImage(
-                                        image: NetworkImage(_imageUrl!),
-                                        fit: BoxFit.cover,
-                                      )
-                                    : DecorationImage(
-                                        image: AssetImage('assets/avatar.png'),
-                                      ),
+                                image: DecorationImage(
+                                  image: AssetImage('assets/avatar.png'),
+                                ),
                               ),
                             ),
                             Positioned(
@@ -274,7 +269,7 @@ class _AccountPageState extends State<AccountPage> {
                                     Icons.edit,
                                     color: Colors.white,
                                   ),
-                                  onPressed: _pickImage,
+                                  onPressed: () {},
                                 ),
                               ),
                             ),

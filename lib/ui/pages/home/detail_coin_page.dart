@@ -19,7 +19,7 @@ class CoinDetailPage extends StatefulWidget {
 
 class _CoinDetailPageState extends State<CoinDetailPage> {
   final currencyFormatter =
-      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
   final ApiServices apiServices = ApiServices();
   List<ChartSampleData> chartData = [];
   String selectedTab = '1D';
@@ -184,7 +184,8 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
                   : SfCartesianChart(
                       primaryXAxis: DateTimeAxis(),
                       primaryYAxis: NumericAxis(
-                        numberFormat: NumberFormat.compact(locale: 'id_ID'),
+                        numberFormat: NumberFormat.currency(
+                            locale: 'id_ID', symbol: 'Rp', decimalDigits: 0),
                       ),
                       series: <ChartSeries>[
                         AreaSeries<ChartSampleData, DateTime>(
@@ -199,6 +200,17 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
                       zoomPanBehavior: ZoomPanBehavior(
                         enablePanning: true,
                         enableDoubleTapZooming: true,
+                      ),
+                      tooltipBehavior: TooltipBehavior(
+                        enable: true,
+                        duration: 1,
+                        header: '',
+                        format: 'Date: point.x\nPrice: point.y',
+                        color: whiteColor,
+                        textStyle: blackTextStyle.copyWith(
+                          fontSize: 12,
+                          fontWeight: medium,
+                        ),
                       ),
                     ),
             ),
