@@ -6,7 +6,6 @@ import 'package:cryptotracker_app/ui/pages/home/widgets/shimmer/coin_card_shimme
 import 'package:cryptotracker_app/ui/pages/home/widgets/coin_tile.dart';
 import 'package:cryptotracker_app/ui/pages/home/widgets/shimmer/coin_tile_shimmer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -20,12 +19,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final User? user = FirebaseAuth.instance.currentUser;
-  String? _imageUrl;
+  //String? _imageUrl;
 
   @override
   void initState() {
     super.initState();
-    _getImageUrl();
+    // _getImageUrl();
     Provider.of<CoinProvider>(context, listen: false).getAllCoins();
   }
 
@@ -34,22 +33,22 @@ class _HomePageState extends State<HomePage> {
       ..getAllCoins();
   }
 
-  void _getImageUrl() async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    Reference ref =
-        FirebaseStorage.instance.ref().child('photo_profile/$uid/profile.jpg');
-    try {
-      String? url = await ref.getDownloadURL();
-      setState(() {
-        _imageUrl = url;
-      });
-    } catch (e) {
-      print('Foto tidak ditemukan');
-      setState(() {
-        _imageUrl = null;
-      });
-    }
-  }
+  // void _getImageUrl() async {
+  //   String uid = FirebaseAuth.instance.currentUser!.uid;
+  //   Reference ref =
+  //       FirebaseStorage.instance.ref().child('photo_profile/$uid/profile.jpg');
+  //   try {
+  //     String? url = await ref.getDownloadURL();
+  //     setState(() {
+  //       _imageUrl = url;
+  //     });
+  //   } catch (e) {
+  //     print('Foto tidak ditemukan');
+  //     setState(() {
+  //       _imageUrl = null;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -103,15 +102,10 @@ class _HomePageState extends State<HomePage> {
                           height: 60,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            image: _imageUrl != null
-                                ? DecorationImage(
-                                    image: NetworkImage(_imageUrl!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : DecorationImage(
-                                    image: AssetImage('assets/avatar.png'),
-                                    fit: BoxFit.cover,
-                                  ),
+                            image: DecorationImage(
+                              image: AssetImage('assets/avatar.png'),
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ],
