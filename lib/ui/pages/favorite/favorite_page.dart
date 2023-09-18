@@ -20,7 +20,7 @@ class FavoritePage extends StatelessWidget {
         if (favoriteCoins.isEmpty) {
           return Center(
             child: Text(
-              'Coin Favorite Belum Ada',
+              'No Data',
               style: TextStyle(fontSize: 16),
             ),
           );
@@ -185,22 +185,3 @@ class FavoritePage extends StatelessWidget {
     );
   }
 }
-
-
-
-
-        // return ListTile(
-              //   leading: Image.network(
-              //     coin.image ?? '',
-              //     width: 40,
-              //     height: 40,
-              //   ),
-              //   title: Text('${coin.name} (${coin.symbol})'),
-              //   trailing: IconButton(
-              //     icon: Icon(Icons.delete),
-              //     onPressed: () {
-              //       Provider.of<CoinProvider>(context, listen: false)
-              //           .toggleFavorite(coin);
-              //     },
-              //   ),
-              // );

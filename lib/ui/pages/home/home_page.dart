@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cryptotracker_app/providers/coin_provider.dart';
 import 'package:cryptotracker_app/shared/theme.dart';
 import 'package:cryptotracker_app/ui/pages/home/widgets/coin_card.dart';
 import 'package:cryptotracker_app/ui/pages/home/widgets/shimmer/coin_card_shimmer.dart';
 import 'package:cryptotracker_app/ui/pages/home/widgets/coin_tile.dart';
 import 'package:cryptotracker_app/ui/pages/home/widgets/shimmer/coin_tile_shimmer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -16,9 +18,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final User? user = FirebaseAuth.instance.currentUser;
+  //String? _imageUrl;
+
   @override
   void initState() {
     super.initState();
+    // _getImageUrl();
     Provider.of<CoinProvider>(context, listen: false).getAllCoins();
   }
 
@@ -26,6 +32,23 @@ class _HomePageState extends State<HomePage> {
     await Provider.of<CoinProvider>(context, listen: false)
       ..getAllCoins();
   }
+
+  // void _getImageUrl() async {
+  //   String uid = FirebaseAuth.instance.currentUser!.uid;
+  //   Reference ref =
+  //       FirebaseStorage.instance.ref().child('photo_profile/$uid/profile.jpg');
+  //   try {
+  //     String? url = await ref.getDownloadURL();
+  //     setState(() {
+  //       _imageUrl = url;
+  //     });
+  //   } catch (e) {
+  //     print('Foto tidak ditemukan');
+  //     setState(() {
+  //       _imageUrl = null;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -43,42 +66,55 @@ class _HomePageState extends State<HomePage> {
                 right: 16,
                 top: 30,
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              child: StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user!.uid)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    String name = snapshot.data!.get('name');
+                    return Row(
                       children: [
-                        Text(
-                          'Hallo,',
-                          style: greyTextStyle.copyWith(
-                            fontSize: 16,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Halo,",
+                                style: greyTextStyle.copyWith(
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                name,
+                                style: blackTextStyle.copyWith(
+                                  fontSize: 20,
+                                  fontWeight: semiBold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
                         ),
-                        Text(
-                          'Abghi Fareihan',
-                          style: blackTextStyle.copyWith(
-                            fontSize: 20,
-                            fontWeight: semiBold,
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: AssetImage('assets/avatar.png'),
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
-                    ),
-                  ),
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: AssetImage(
-                          'assets/profile.png',
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                    );
+                  }
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
               ),
             ),
 
@@ -98,7 +134,7 @@ class _HomePageState extends State<HomePage> {
             ),
 
             Container(
-              height: 115,
+              height: 120,
               margin: const EdgeInsets.only(
                 top: 14,
               ),
@@ -151,7 +187,7 @@ class _HomePageState extends State<HomePage> {
             Consumer<CoinProvider>(
               builder: (context, provider, child) {
                 final data = provider.coins;
-                if (provider.state == ResultState.loading || data.isEmpty) {
+                if (provider.state == ResultState.loading) {
                   return Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,

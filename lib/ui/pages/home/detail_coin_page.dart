@@ -75,38 +75,47 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
         backgroundColor: Color(0xffF8F8F8),
         elevation: 0.0,
         centerTitle: true,
+        toolbarHeight: 80, // Atur tinggi AppBar menjadi 80
         title: Text(
           widget.coin.name!,
           style: TextStyle(
             color: Colors.black,
           ),
         ),
-        leading: IconButton(
-          icon: Icon(
-            size: 20,
-            Icons.arrow_back_ios,
-            color: Colors.black,
+        leading: Padding(
+          padding: EdgeInsets.all(16), // Atur padding keseluruhan pada leading
+          child: IconButton(
+            iconSize: 20, // Menggunakan iconSize untuk mengatur ukuran ikon
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
         ),
         actions: [
-          Consumer<CoinProvider>(
-            builder: (context, coinProvider, _) {
-              bool isFavorite = coinProvider.isFavorite(widget.coin);
-              return IconButton(
-                icon: Icon(
-                  size: 24,
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? Colors.red : Colors.black,
-                ),
-                onPressed: () {
-                  Provider.of<CoinProvider>(context, listen: false)
-                      .toggleFavorite(widget.coin);
-                },
-              );
-            },
+          Padding(
+            padding:
+                EdgeInsets.all(16), // Atur padding keseluruhan pada actions
+            child: Consumer<CoinProvider>(
+              builder: (context, coinProvider, _) {
+                bool isFavorite = coinProvider.isFavorite(widget.coin);
+                return IconButton(
+                  iconSize:
+                      24, // Menggunakan iconSize untuk mengatur ukuran ikon
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.red : Colors.black,
+                  ),
+                  onPressed: () {
+                    Provider.of<CoinProvider>(context, listen: false)
+                        .toggleFavorite(widget.coin);
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -175,7 +184,8 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
                   : SfCartesianChart(
                       primaryXAxis: DateTimeAxis(),
                       primaryYAxis: NumericAxis(
-                        numberFormat: NumberFormat.compact(locale: 'id_ID'),
+                        numberFormat: NumberFormat.currency(
+                            locale: 'id_ID', symbol: 'Rp', decimalDigits: 0),
                       ),
                       series: <ChartSeries>[
                         AreaSeries<ChartSampleData, DateTime>(
@@ -187,6 +197,21 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
                           borderWidth: 2,
                         ),
                       ],
+                      zoomPanBehavior: ZoomPanBehavior(
+                        enablePanning: true,
+                        enableDoubleTapZooming: true,
+                      ),
+                      tooltipBehavior: TooltipBehavior(
+                        enable: true,
+                        duration: 1,
+                        header: '',
+                        format: 'Date: point.x\nPrice: point.y',
+                        color: whiteColor,
+                        textStyle: blackTextStyle.copyWith(
+                          fontSize: 12,
+                          fontWeight: medium,
+                        ),
+                      ),
                     ),
             ),
             SizedBox(height: 24),
@@ -195,11 +220,6 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  // _buildIntervalButton('1D'),
-                  // _buildIntervalButton('7D'),
-                  // _buildIntervalButton('14D'),
-                  // _buildIntervalButton('1M'),
-                  // _buildIntervalButton('3M'),
                   _buildTab('1D'),
                   _buildTab('7D'),
                   _buildTab('14D'),
@@ -218,35 +238,33 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
+                    'Market Cap Rank:',
+                    style: greyTextStyle.copyWith(
+                      fontSize: 12,
+                      fontWeight: medium,
+                    ),
+                  ),
+                  Text(
+                    '#${widget.coin.marketCapRank}',
+                    style: blackTextStyle.copyWith(
+                      fontSize: 16,
+                      fontWeight: medium,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
                     'Market Cap:',
                     style: greyTextStyle.copyWith(
                       fontSize: 12,
                       fontWeight: medium,
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${currencyFormatter.format(widget.coin.marketCap)}',
-                        style: blackTextStyle.copyWith(
-                          fontSize: 16,
-                          fontWeight: medium,
-                        ),
-                      ),
-                      Text(
-                        '${widget.coin.marketCapChangePercentage24H!.toStringAsFixed(1)}%',
-                        style: widget.coin.marketCapChangePercentage24H! >= 0
-                            ? greenTextStyle.copyWith(
-                                fontSize: 16,
-                                fontWeight: semiBold,
-                              )
-                            : redTextStyle.copyWith(
-                                fontSize: 16,
-                                fontWeight: semiBold,
-                              ),
-                      ),
-                    ],
+                  Text(
+                    '${currencyFormatter.format(widget.coin.marketCap)}',
+                    style: blackTextStyle.copyWith(
+                      fontSize: 16,
+                      fontWeight: medium,
+                    ),
                   ),
                   SizedBox(height: 16),
                   Text(
@@ -258,6 +276,36 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
                   ),
                   Text(
                     '${currencyFormatter.format(widget.coin.totalVolume)}',
+                    style: blackTextStyle.copyWith(
+                      fontSize: 16,
+                      fontWeight: medium,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    '24H High:',
+                    style: greyTextStyle.copyWith(
+                      fontSize: 12,
+                      fontWeight: medium,
+                    ),
+                  ),
+                  Text(
+                    '${currencyFormatter.format(widget.coin.high24)}',
+                    style: blackTextStyle.copyWith(
+                      fontSize: 16,
+                      fontWeight: medium,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    '24H Low:',
+                    style: greyTextStyle.copyWith(
+                      fontSize: 12,
+                      fontWeight: medium,
+                    ),
+                  ),
+                  Text(
+                    '${currencyFormatter.format(widget.coin.low24)}',
                     style: blackTextStyle.copyWith(
                       fontSize: 16,
                       fontWeight: medium,
@@ -309,50 +357,6 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
 
     // Warna default jika data kosong
     return Colors.blue.withOpacity(0.5);
-  }
-
-  Widget _buildPriceInfo({
-    required String title,
-    required String value,
-    bool isPositive = true,
-  }) {
-    return Column(
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
-        ),
-        SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: isPositive ? greenColor : redColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildIntervalButton(String interval) {
-    return ElevatedButton(
-      onPressed: () {
-        getMarketChart(interval);
-      },
-      style: ElevatedButton.styleFrom(
-        primary: selectedTab == interval ? primaryNavbarColor : Colors.grey,
-      ),
-      child: Text(
-        interval,
-        style: TextStyle(
-          color: Colors.white,
-        ),
-      ),
-    );
   }
 
   Widget _buildTab(String interval) {

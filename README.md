@@ -1,16 +1,9 @@
-# cryptotracker_app
+## Crypto Tracker App
 
-A new Flutter project.
+Splash Page | Home Page | Login Page
+:---------:|:----------:|:-----------:|
+<img src="https://i.ibb.co/pKJQBK5/Screenshot-1687094066.png" width=300/> | <img src="https://i.ibb.co/d5Swgnf/Screenshot-1687093548.png" width=300/> | <img src="https://i.ibb.co/tHF7bcp/Screenshot-1687093985.png" width=300/> |
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Detail Page | News Page | Account Page
+:---------:|:----------:|:-----------:|
+<img src="https://i.ibb.co/QHkq86y/Screenshot-1687093573.png" width=300/> | <img src="https://i.ibb.co/LPGhvmp/Screenshot-1687093593.png" width=300/> | <img src="https://i.ibb.co/Bzdqrr0/Screenshot-1687093601.png" width=300/> |

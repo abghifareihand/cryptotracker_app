@@ -1,9 +1,10 @@
 import 'package:cryptotracker_app/shared/theme.dart';
-import 'package:cryptotracker_app/ui/pages/home/home_page.dart';
-import 'package:cryptotracker_app/ui/pages/favorite/favorite_page.dart';
-import 'package:cryptotracker_app/ui/pages/news/news_page.dart';
 import 'package:cryptotracker_app/ui/pages/account/account_page.dart';
+import 'package:cryptotracker_app/ui/pages/favorite/favorite_page.dart';
+import 'package:cryptotracker_app/ui/pages/home/home_page.dart';
+import 'package:cryptotracker_app/ui/pages/news/news_page.dart';
 import 'package:flutter/material.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 
 class BottomNavbar extends StatefulWidget {
   const BottomNavbar({super.key});
@@ -13,7 +14,7 @@ class BottomNavbar extends StatefulWidget {
 }
 
 class _BottomNavbarState extends State<BottomNavbar> {
-  var currentIndex = 0;
+  int selectedIndex = 0;
   List pages = [
     const HomePage(),
     const FavoritePage(),
@@ -23,81 +24,69 @@ class _BottomNavbarState extends State<BottomNavbar> {
 
   @override
   Widget build(BuildContext context) {
-    // Size size = MediaQuery.of(context).size;
     return Scaffold(
-      floatingActionButton: Container(
-        margin: const EdgeInsets.all(20),
-        height: deviceWidth(context) * .155,
-        decoration: BoxDecoration(
-          color: whiteColor,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(.15),
-              blurRadius: 30,
-              offset: const Offset(0, 10),
-            ),
-          ],
-          borderRadius: BorderRadius.circular(50),
-        ),
-        child: ListView.builder(
-          itemCount: 4,
-          scrollDirection: Axis.horizontal,
-          padding:
-              EdgeInsets.symmetric(horizontal: deviceWidth(context) * .024),
-          itemBuilder: (context, index) => InkWell(
-            onTap: () {
-              setState(
-                () {
-                  currentIndex = index;
-                },
-              );
-            },
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 1500),
-                  curve: Curves.fastLinearToSlowEaseIn,
-                  margin: EdgeInsets.only(
-                    bottom:
-                        index == currentIndex ? 0 : deviceWidth(context) * .029,
-                    right: deviceWidth(context) * .0422,
-                    left: deviceWidth(context) * .0422,
-                  ),
-                  width: deviceWidth(context) * .128,
-                  height:
-                      index == currentIndex ? deviceWidth(context) * .014 : 0,
-                  decoration: const BoxDecoration(
-                    color: primaryNavbarColor,
-                    borderRadius: BorderRadius.vertical(
-                      bottom: Radius.circular(10),
-                    ),
-                  ),
-                ),
-                Icon(
-                  listOfIcons[index],
-                  size: deviceWidth(context) * .076,
-                  color: index == currentIndex
-                      ? primaryNavbarColor
-                      : secondaryNavbarColor,
-                ),
-                SizedBox(height: deviceWidth(context) * .03),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: pages[currentIndex],
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      bottomNavigationBar: bottomNavBar(),
+      body: pages[selectedIndex],
     );
   }
 
-  List<IconData> listOfIcons = [
-    Icons.home_rounded,
-    Icons.favorite_rounded,
-    Icons.newspaper_rounded,
-    Icons.person_rounded,
-  ];
+  Widget bottomNavBar() {
+    return Container(
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 10,
+        ),
+        child: GNav(
+          backgroundColor: Colors.white,
+          color: greyColor,
+          activeColor: primaryNavbarColor,
+          tabBackgroundColor: primaryNavbarColor.withOpacity(0.15),
+          gap: 10,
+          selectedIndex: selectedIndex,
+          onTabChange: (index) {
+            if (selectedIndex != index) {
+              setState(() {
+                selectedIndex = index;
+              });
+            }
+          },
+          padding: const EdgeInsets.all(16),
+          tabs: const [
+            GButton(
+              icon: Icons.home_rounded,
+              text: 'Home',
+            ),
+            GButton(
+              icon: Icons.favorite_rounded,
+              text: 'Favorite',
+            ),
+            GButton(
+              icon: Icons.newspaper_rounded,
+              text: 'News',
+            ),
+            GButton(
+              icon: Icons.person_rounded,
+              text: 'Account',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
